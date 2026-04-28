@@ -14,7 +14,7 @@ def make_code():
         if any(c.isalpha() for c in code) and any(c.isdigit() for c in code):
             return code
 
-async def handler(ws):
+async def handler(ws, path=None):
     room_code = None
     try:
         async for message in ws:
@@ -42,16 +42,17 @@ async def handler(ws):
                         await target.send(message)
             elif data["type"] == "ping":
                 await ws.send(json.dumps({"type":"pong"}))
-    except:
-        pass
+    except Exception as e:
+        print(f"Handler error: {e}")
     finally:
         if room_code and room_code in rooms:
             del rooms[room_code]
 
 async def main():
     port = int(os.environ.get("PORT", 8765))
+    print(f"Starting relay server on port {port}")
     async with websockets.serve(handler, "0.0.0.0", port):
-        print(f"Relay server running on port {port}")
+        print(f"Relay server running!")
         await asyncio.Future()
 
 asyncio.run(main())
