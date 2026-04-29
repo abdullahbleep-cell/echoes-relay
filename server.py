@@ -72,21 +72,11 @@ async def handler(ws):
             del rooms[room_code]
             print(f"Room closed: {room_code}", flush=True)
 
-async def health_check(path, request_headers):
-    if path == "/health":
-        return websockets.http11.Response(
-            200, "OK",
-            websockets.datastructures.Headers([
-                ("Content-Type", "text/plain")]),
-            b"ECHOES RELAY ONLINE")
-
 async def main():
     port = int(os.environ.get("PORT", 8765))
     print(f"Starting relay on port {port}", flush=True)
-    async with websockets.serve(
-            handler, "0.0.0.0", port,
-            process_request=health_check):
-        print(f"Relay running!", flush=True)
+    async with websockets.serve(handler, "0.0.0.0", port):
+        print(f"Relay running on port {port}!", flush=True)
         await asyncio.Future()
 
 asyncio.run(main())
